@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useLayoutEffect } from 'react';
 import {
     StyleSheet,
     Text,
@@ -10,27 +10,48 @@ import {
 import { Context } from '../context/BlogContext';
 import { Feather } from '@expo/vector-icons';
 
-const IndexScreen = () => {
-    const { state, addBlogPosts, deleteBlogPost } = useContext(Context);
+const IndexScreen = ({ navigation }) => {
+    const { state, deleteBlogPost } = useContext(Context);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            title: 'Blogs',
+            headerRight: () => (
+                <TouchableOpacity onPress={() => navigation.navigate('Create')}>
+                    <Feather
+                        name='plus'
+                        size={30}
+                        color='black'
+                        style={{ marginRight: 15 }}
+                    />
+                </TouchableOpacity>
+            ),
+        });
+    });
 
     return (
         <View>
-            <Button title='Add Post' onPress={addBlogPosts} />
             <FlatList
                 data={state}
                 keyExtractor={(blogPost) => blogPost.title}
                 renderItem={({ item }) => {
                     return (
-                        <View style={styles.row}>
-                            <Text style={styles.title}>
-                                {item.title} - {item.id}
-                            </Text>
-                            <TouchableOpacity
-                                onPress={() => deleteBlogPost(item.id)}
-                            >
-                                <Feather name='trash' style={styles.icon} />
-                            </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity
+                            onPress={() =>
+                                navigation.navigate('Show', { id: item.id })
+                            }
+                        >
+                            <View style={styles.row}>
+                                <Text style={styles.title}>
+                                    {item.title} - {item.id}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => deleteBlogPost(item.id)}
+                                >
+                                    <Feather name='trash' style={styles.icon} />
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableOpacity>
                     );
                 }}
             />
